@@ -37,18 +37,18 @@ buildscript {
 
 plugins {
     `build-scan` version "1.15"
-    idea
+    //idea
     id("jps-compatible")
 }
 
-pill {
-    excludedDirs(
-        "out",
-        "buildSrc/build",
-        "buildSrc/prepare-deps/android-dx/build",
-        "buildSrc/prepare-deps/intellij-sdk/build"
-    )
-}
+//pill {
+//    excludedDirs(
+//        "out",
+//        "buildSrc/build",
+//        "buildSrc/prepare-deps/android-dx/build",
+//        "buildSrc/prepare-deps/intellij-sdk/build"
+//    )
+//}
 
 buildScan {
     setTermsOfServiceUrl("https://gradle.com/terms-of-service")
@@ -660,17 +660,17 @@ val zipCidrPlugin by task<Zip> {
     }
 }
 
-configure<IdeaModel> {
-    module {
-        excludeDirs = files(
-                project.buildDir,
-                commonLocalDataDir,
-                ".gradle",
-                "dependencies",
-                "dist"
-        ).toSet()
-    }
-}
+//configure<IdeaModel> {
+//    module {
+//        excludeDirs = files(
+//                project.buildDir,
+//                commonLocalDataDir,
+//                ".gradle",
+//                "dependencies",
+//                "dist"
+//        ).toSet()
+//    }
+//}
 
 fun jdkPath(version: String): String {
     val jdkName = "JDK_${version.replace(".", "")}"
