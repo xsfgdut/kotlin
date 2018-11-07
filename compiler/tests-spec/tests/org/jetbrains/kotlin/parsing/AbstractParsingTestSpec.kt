@@ -20,7 +20,11 @@ abstract class AbstractParsingTestSpec : AbstractParsingTest() {
 
         println(specTest)
 
-        super.doParsingTest(filePath, CommonParser::testInfoFilter)
+        try {
+            super.doParsingTest(filePath, CommonParser::testInfoFilter)
+        } catch (e: Throwable) {
+            if (specTest.unexpectedBehavior) return
+        }
 
         val psiTestValidator = ParsingTestTypeValidator(myFile, File(filePath), specTest)
 
