@@ -137,7 +137,7 @@ extra["versions.robolectric"] = "3.1"
 extra["versions.org.springframework"] = "4.2.0.RELEASE"
 extra["versions.jflex"] = "1.7.0"
 extra["versions.markdown"] = "0.1.25"
-extra["versions.ktor-network"] = "0.9.1-alpha-10"
+extra["versions.ktor-network"] = "0.9.5-rc13"
 
 val markdownVer =  "4054 - Kotlin 1.0.2-dev-566".replace(" ", "%20") // fixed here, was last with "status:SUCCESS,tag:forKotlin"
 extra["markdownParserVersion"] = markdownVer
@@ -288,14 +288,15 @@ allprojects {
         mirrorRepo?.let(::maven)
         bootstrapKotlinRepo?.let(::maven)
         jcenter()
+        maven("http://dl.bintray.com/kotlin/ktor")
     }
 
     configureJvmProject(javaHome!!, jvmTarget!!)
 
     val commonCompilerArgs = listOfNotNull(
-            "-Xallow-kotlin-package",
-            "-Xread-deserialized-contracts",
-            "-Xprogressive".takeIf { hasProperty("test.progressive.mode") } // TODO: change to "-progressive" after bootstrap
+        "-Xallow-kotlin-package",
+        "-Xread-deserialized-contracts",
+        "-Xprogressive".takeIf { hasProperty("test.progressive.mode") } // TODO: change to "-progressive" after bootstrap
     )
 
     tasks.withType<org.jetbrains.kotlin.gradle.dsl.KotlinCompile<*>> {
@@ -374,7 +375,7 @@ gradle.taskGraph.whenReady {
         logger.warn("Local build profile is active (IC is on, proguard is off). Use -Pteamcity=true to reproduce TC build")
         for (task in allTasks) {
             when (task) {
-            // todo: remove when Gradle 4.10+ is used (Java IC on by default)
+                // todo: remove when Gradle 4.10+ is used (Java IC on by default)
                 is JavaCompile -> task.options.isIncremental = true
                 is org.gradle.jvm.tasks.Jar -> task.entryCompression = ZipEntryCompression.STORED
             }
