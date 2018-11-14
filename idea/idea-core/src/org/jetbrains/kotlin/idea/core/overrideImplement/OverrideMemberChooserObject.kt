@@ -217,6 +217,7 @@ private val ACTUAL_RENDERER = OVERRIDE_RENDERER.withOptions {
     renderDefaultVisibility = false
     renderDefaultModality = false
     renderConstructorDelegation = true
+    renderActualAnnotationPropertiesInPrimaryConstructor = true
 }
 
 private fun PropertyDescriptor.wrap(forceOverride: Boolean): PropertyDescriptor {
@@ -307,7 +308,13 @@ private fun generateFunction(
     val factory = KtPsiFactory(project)
     val functionText = renderer.render(newDescriptor) + body
     return when (descriptor) {
-        is ClassConstructorDescriptor -> factory.createSecondaryConstructor(functionText)
+        is ClassConstructorDescriptor -> {
+            if (descriptor.isPrimary) {
+                factory.createPrimaryConstructor(functionText)
+            } else {
+                factory.createSecondaryConstructor(functionText)
+            }
+        }
         else -> factory.createFunction(functionText)
     }
 }

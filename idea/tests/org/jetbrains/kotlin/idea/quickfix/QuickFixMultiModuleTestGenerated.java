@@ -169,6 +169,11 @@ public class QuickFixMultiModuleTestGenerated extends AbstractQuickFixMultiModul
         runTest("idea/testData/multiModuleQuickFix/constructorWithDelegation/");
     }
 
+    @TestMetadata("constructorWithJdk")
+    public void testConstructorWithJdk() throws Exception {
+        runTest("idea/testData/multiModuleQuickFix/constructorWithJdk/");
+    }
+
     @TestMetadata("convertActualEnumToSealedClass")
     public void testConvertActualEnumToSealedClass() throws Exception {
         runTest("idea/testData/multiModuleQuickFix/convertActualEnumToSealedClass/");

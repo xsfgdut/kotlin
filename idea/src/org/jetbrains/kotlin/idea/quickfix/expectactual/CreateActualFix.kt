@@ -263,10 +263,7 @@ internal fun KtPsiFactory.generateClassOrObjectByExpectedClass(
             is KtCallableDeclaration -> it.delete()
         }
     }
-    val primaryConstructor = actualClass.primaryConstructor
-    if (primaryConstructor != null && primaryConstructor.exists()) {
-        primaryConstructor.delete()
-    }
+    actualClass.primaryConstructor?.delete()
 
     val context = expectedClass.analyzeWithContent()
     actualClass.superTypeListEntries.zip(expectedClass.superTypeListEntries).forEach { (actualEntry, expectedEntry) ->
@@ -307,15 +304,13 @@ internal fun KtPsiFactory.generateClassOrObjectByExpectedClass(
         }
         actualClass.addDeclaration(actualDeclaration)
     }
-
-    actualClass.primaryConstructor?.let {
-        it.addModifier(KtTokens.ACTUAL_KEYWORD)
-        for (parameter in it.valueParameters) {
-            if (parameter.hasValOrVar()) {
-                parameter.addModifier(KtTokens.ACTUAL_KEYWORD)
-            }
+    val expectedPrimaryConstructor = expectedClass.primaryConstructor
+    if (actualClass is KtClass && expectedPrimaryConstructor?.exists() == false) {
+        val descriptor = expectedPrimaryConstructor.toDescriptor()
+        if (descriptor is FunctionDescriptor) {
+            val actualPrimaryConstructor = generateFunction(project, expectedPrimaryConstructor, descriptor, actualClass)
+            actualClass.createPrimaryConstructorIfAbsent().replace(actualPrimaryConstructor)
         }
-        it.removeParameterDefaultValues()
     }
 
     return actualClass
@@ -342,16 +337,6 @@ private fun generateFunction(
     } else {
         memberChooserObject.generateTopLevelActual(copyDoc = true, project = project)
     } as KtFunction
-}
-
-private fun KtFunction.removeParameterDefaultValues() {
-    for (valueParameter in valueParameters) {
-        val defaultValue = valueParameter.defaultValue
-        if (defaultValue != null) {
-            val equalsToken = valueParameter.equalsToken
-            valueParameter.deleteChildRange(equalsToken, defaultValue)
-        }
-    }
 }
 
 private fun generateProperty(
