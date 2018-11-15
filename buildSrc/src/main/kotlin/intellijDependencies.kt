@@ -26,6 +26,12 @@ import org.gradle.api.tasks.JavaExec
 import org.gradle.kotlin.dsl.*
 import java.io.File
 
+val Project.trove4jVersion: String
+    get() = "1.0.20160824"
+
+val Project.trove4jCoordinates: String
+    get() = "org.jetbrains.intellij.deps:trove4j:$trove4jVersion"
+
 private fun Project.intellijRepoDir() = File("${project.rootDir.absoluteFile}/buildSrc/prepare-deps/intellij-sdk/build/repo")
 
 fun RepositoryHandler.intellijSdkRepo(project: Project): IvyArtifactRepository = ivy {
