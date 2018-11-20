@@ -1261,6 +1261,7 @@ public class KotlinTypeMapper {
             return mapSignatureWithCustomParameters(f, kind, Stream.of(arrayOfNullableAny), null, false, false);
         }
 
+        // TODO: check LanguageVersionSettings
         if (JvmCodegenUtil.isPolymorphicSignature(f) && resolvedCall != null) {
             /*
             if (resolvedCall == null) {

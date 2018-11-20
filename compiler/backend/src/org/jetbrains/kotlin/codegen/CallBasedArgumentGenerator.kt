@@ -5,6 +5,7 @@
 
 package org.jetbrains.kotlin.codegen
 
+import org.jetbrains.kotlin.config.LanguageFeature
 import org.jetbrains.kotlin.descriptors.FunctionDescriptor
 import org.jetbrains.kotlin.descriptors.ValueParameterDescriptor
 import org.jetbrains.kotlin.resolve.calls.model.DefaultValueArgument
@@ -24,6 +25,7 @@ class CallBasedArgumentGenerator(
         JvmCodegenUtil.isDeclarationOfBigArityFunctionInvoke(valueParameters.firstOrNull()?.containingDeclaration)
 
     private val isPolymorphicSignature: Boolean =
+        codegen.state.languageVersionSettings.supportsFeature(LanguageFeature.PolymorphicSignature) &&
         (valueParameters.firstOrNull()?.containingDeclaration as? FunctionDescriptor)?.let { function ->
             JvmCodegenUtil.isPolymorphicSignature(function)
         } == true
