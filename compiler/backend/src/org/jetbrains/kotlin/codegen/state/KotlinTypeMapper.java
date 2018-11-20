@@ -44,6 +44,7 @@ import org.jetbrains.kotlin.load.kotlin.incremental.IncrementalPackageFragmentPr
 import org.jetbrains.kotlin.metadata.jvm.deserialization.JvmBytecodeBinaryVersion;
 import org.jetbrains.kotlin.name.*;
 import org.jetbrains.kotlin.psi.*;
+import org.jetbrains.kotlin.psi.psiUtil.KtPsiUtilKt;
 import org.jetbrains.kotlin.resolve.*;
 import org.jetbrains.kotlin.resolve.calls.model.DefaultValueArgument;
 import org.jetbrains.kotlin.resolve.calls.model.ResolvedCall;
@@ -1260,61 +1261,23 @@ public class KotlinTypeMapper {
             return mapSignatureWithCustomParameters(f, kind, Stream.of(arrayOfNullableAny), null, false, false);
         }
 
+        Stream<KotlinType> parameterTypes;
+        KotlinType returnType;
+
         // TODO: check LanguageVersionSettings
-        if (JvmCodegenUtil.isPolymorphicSignature(f) && resolvedCall != null) {
-            /*
+        if (JvmCodegenUtil.isPolymorphicSignature(f)) {
             if (resolvedCall == null) {
                 throw new UnsupportedOperationException("Cannot determine polymorphic signature without a resolved call: " + f);
             }
-            */
-            List<ResolvedValueArgument> valueArgumentsByIndex = resolvedCall.getValueArgumentsByIndex();
-            if (valueArgumentsByIndex == null ||
-                valueArgumentsByIndex.size() != 1 ||
-                !(valueArgumentsByIndex.get(0) instanceof VarargValueArgument)) {
-                throw new UnsupportedOperationException(
-                        "Polymorphic signature is only supported for methods with one vararg argument: " + f
-                );
-            }
-
-            VarargValueArgument argument = (VarargValueArgument) valueArgumentsByIndex.get(0);
-            Stream<KotlinType> parameterTypes = argument.getArguments().stream().map(arg -> {
-                KtExpression expression = arg.getArgumentExpression();
-                if (expression == null) {
-                    throw new UnsupportedOperationException("Polymorphic signature argument must be an expression: " + f);
-                }
-                return bindingContext.getType(expression);
-            });
-
-            if (!(resolvedCall.getCall().getCallElement() instanceof KtExpression)) {
-                throw new UnsupportedOperationException("Polymorphic signature method call must be an expression: " + f);
-            }
-            KtExpression expression = (KtExpression) resolvedCall.getCall().getCallElement();
-
-            // TODO: find an utility
-            while (true) {
-                PsiElement parent = expression.getParent();
-                if (parent instanceof KtQualifiedExpression && ((KtQualifiedExpression) parent).getSelectorExpression() == expression) {
-                    expression = (KtExpression) parent;
-                } else break;
-            }
-            while (true) {
-                PsiElement parent = expression.getParent();
-                if (parent instanceof KtParenthesizedExpression) {
-                    expression = (KtExpression) parent;
-                } else break;
-            }
-
-            // TODO: maybe only do this in case the original return type is Any (see compareAndSet, setVolatile)?
-            KotlinType returnType =
-                    expression.getParent() instanceof KtBinaryExpressionWithTypeRHS
-                    ? bindingContext.getType((KtExpression) expression.getParent())
-                    : null;
-
-            return mapSignatureWithCustomParameters(f, kind, parameterTypes, returnType, skipGenericSignature, hasSpecialBridge);
+            parameterTypes = extractPolymorphicParameterTypes(resolvedCall);
+            returnType = extractPolymorphicReturnType(resolvedCall);
+        }
+        else {
+            parameterTypes = f.getValueParameters().stream().map(ValueParameterDescriptor::getType);
+            returnType = null;
         }
 
-        Stream<KotlinType> parameterTypes = f.getValueParameters().stream().map(ValueParameterDescriptor::getType);
-        return mapSignatureWithCustomParameters(f, kind, parameterTypes, null, skipGenericSignature, hasSpecialBridge);
+        return mapSignatureWithCustomParameters(f, kind, parameterTypes, returnType, skipGenericSignature, hasSpecialBridge);
     }
 
     @NotNull
@@ -1420,6 +1383,54 @@ public class KotlinTypeMapper {
         }
 
         return signature;
+    }
+
+    @NotNull
+    private Stream<KotlinType> extractPolymorphicParameterTypes(@NotNull ResolvedCall<?> resolvedCall) {
+        List<ResolvedValueArgument> valueArgumentsByIndex = resolvedCall.getValueArgumentsByIndex();
+        if (valueArgumentsByIndex == null ||
+            valueArgumentsByIndex.size() != 1 ||
+            !(valueArgumentsByIndex.get(0) instanceof VarargValueArgument)) {
+            throw new UnsupportedOperationException(
+                    "Polymorphic signature is only supported for methods with one vararg argument: " + resolvedCall.getResultingDescriptor()
+            );
+        }
+
+        VarargValueArgument argument = (VarargValueArgument) valueArgumentsByIndex.get(0);
+        return argument.getArguments().stream().map(arg -> {
+            KtExpression expression = arg.getArgumentExpression();
+            if (expression == null) {
+                throw new UnsupportedOperationException(
+                        "Polymorphic signature argument must be an expression: " + resolvedCall.getResultingDescriptor()
+                );
+            }
+            return bindingContext.getType(expression);
+        });
+    }
+
+    @Nullable
+    private KotlinType extractPolymorphicReturnType(@NotNull ResolvedCall<?> resolvedCall) {
+        // Return type is polymorphic only in case it's Object; see VarHandle.compareAndSet and similar.
+        KotlinType originalReturnType = resolvedCall.getResultingDescriptor().getReturnType();
+        if (originalReturnType != null && !KotlinBuiltIns.isAny(originalReturnType)) return null;
+
+        if (!(resolvedCall.getCall().getCallElement() instanceof KtExpression)) {
+            throw new UnsupportedOperationException(
+                    "Polymorphic signature method call must be an expression: " + resolvedCall.getResultingDescriptor()
+            );
+        }
+        KtExpression expression = (KtExpression) resolvedCall.getCall().getCallElement();
+
+        while (true) {
+            KtQualifiedExpression parent = KtPsiUtilKt.getQualifiedExpressionForSelector(expression);
+            if (parent == null) break;
+            expression = parent;
+        }
+        expression = KtPsiUtilKt.getOutermostParenthesizerOrThis(expression);
+
+        return expression.getParent() instanceof KtBinaryExpressionWithTypeRHS
+               ? bindingContext.getType((KtExpression) expression.getParent())
+               : null;
     }
 
     private void checkOwnerCompatibility(@NotNull FunctionDescriptor descriptor) {

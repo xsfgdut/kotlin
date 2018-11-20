@@ -18,7 +18,9 @@ import java.util.concurrent.TimeUnit
 class Java9CodegenTest : AbstractBlackBoxCodegenTest() {
     override fun setUp() {
         super.setUp()
-        createEnvironmentWithMockJdkAndIdeaAnnotations(ConfigurationKind.NO_KOTLIN_REFLECT, emptyList(), TestJdkKind.FULL_JDK_9)
+        val fileName = KotlinTestUtils.getTestDataPathBase() + "/codegen/" + getPrefix() + "/" + getTestName(true) + ".kt"
+        val testFile = TestFile(fileName, File(fileName).readText())
+        createEnvironmentWithMockJdkAndIdeaAnnotations(ConfigurationKind.NO_KOTLIN_REFLECT, listOf(testFile), TestJdkKind.FULL_JDK_9)
     }
 
     override fun getPrefix(): String = "java9/box"

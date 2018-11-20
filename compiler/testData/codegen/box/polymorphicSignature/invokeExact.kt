@@ -1,3 +1,4 @@
+// !LANGUAGE: +PolymorphicSignature
 // TARGET_BACKEND: JVM
 // IGNORE_BACKEND: JVM_IR
 // FULL_JDK

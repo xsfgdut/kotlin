@@ -16780,6 +16780,11 @@ public class LightAnalysisModeTestGenerated extends AbstractLightAnalysisModeTes
             KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/polymorphicSignature"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
         }
 
+        @TestMetadata("anonymousSubclass.kt")
+        public void testAnonymousSubclass() throws Exception {
+            runTest("compiler/testData/codegen/box/polymorphicSignature/anonymousSubclass.kt");
+        }
+
         @TestMetadata("invoke.kt")
         public void testInvoke() throws Exception {
             runTest("compiler/testData/codegen/box/polymorphicSignature/invoke.kt");
@@ -16793,6 +16798,16 @@ public class LightAnalysisModeTestGenerated extends AbstractLightAnalysisModeTes
         @TestMetadata("invokeExactWithInlineClass.kt")
         public void testInvokeExactWithInlineClass() throws Exception {
             runTest("compiler/testData/codegen/box/polymorphicSignature/invokeExactWithInlineClass.kt");
+        }
+
+        @TestMetadata("varargOfObjects_after.kt")
+        public void testVarargOfObjects_after() throws Exception {
+            runTest("compiler/testData/codegen/box/polymorphicSignature/varargOfObjects_after.kt");
+        }
+
+        @TestMetadata("varargOfObjects_before.kt")
+        public void testVarargOfObjects_before() throws Exception {
+            runTest("compiler/testData/codegen/box/polymorphicSignature/varargOfObjects_before.kt");
         }
     }
 
