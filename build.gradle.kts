@@ -18,65 +18,53 @@ buildscript {
     repositories.withRedirector(project) {
         bootstrapKotlinRepo?.let(::maven)
         maven("https://plugins.gradle.org/m2")
+        maven("http://dl.bintray.com/kotlin/ktor")
     }
-
     // a workaround for kotlin compiler classpath in kotlin project: sometimes gradle substitutes
     // kotlin-stdlib external dependency with local project :kotlin-stdlib in kotlinCompilerClasspath configuration.
     // see also configureCompilerClasspath@
     val bootstrapCompilerClasspath by configurations.creating
-
     dependencies {
         bootstrapCompilerClasspath(kotlin("compiler-embeddable", bootstrapKotlinVersion))
-
         classpath("com.gradle.publish:plugin-publish-plugin:0.9.7")
         classpath(kotlin("gradle-plugin", bootstrapKotlinVersion))
         classpath("net.sf.proguard:proguard-gradle:5.3.3")
         classpath("org.jetbrains.dokka:dokka-gradle-plugin:0.9.17")
     }
 }
-
 plugins {
     `build-scan` version "1.15"
     idea
     id("jps-compatible")
 }
-
 pill {
     excludedDirs(
-        "out",
-        "buildSrc/build",
-        "buildSrc/prepare-deps/android-dx/build",
-        "buildSrc/prepare-deps/intellij-sdk/build"
+            "out",
+            "buildSrc/build",
+            "buildSrc/prepare-deps/android-dx/build",
+            "buildSrc/prepare-deps/intellij-sdk/build"
     )
 }
-
 buildScan {
     setTermsOfServiceUrl("https://gradle.com/terms-of-service")
     setTermsOfServiceAgree("yes")
 }
-
 val configuredJdks: List<JdkId> =
         getConfiguredJdks().also {
             it.forEach {
                 logger.info("Using ${it.majorVersion} home: ${it.homeDir}")
             }
         }
-
 val defaultSnapshotVersion: String by extra
 val buildNumber by extra(findProperty("build.number")?.toString() ?: defaultSnapshotVersion)
 val kotlinVersion by extra(findProperty("deployVersion")?.toString() ?: buildNumber)
-
 val kotlinLanguageVersion by extra("1.3")
-
 allprojects {
     group = "org.jetbrains.kotlin"
     version = kotlinVersion
 }
-
 extra["kotlin_root"] = rootDir
-
 val cidrKotlinPlugin by configurations.creating
-
 dependencies {
     cidrKotlinPlugin(project(":prepare:cidr-plugin", "runtimeJar"))
 }
@@ -91,7 +79,6 @@ val ideaUltimateSandboxDir = "$commonLocalDataDir/ideaUltimateSandbox"
 val ideaPluginDir = "$distDir/artifacts/ideaPlugin/Kotlin"
 val ideaUltimatePluginDir = "$distDir/artifacts/ideaUltimatePlugin/Kotlin"
 val cidrPluginDir = "$distDir/artifacts/cidrPlugin/Kotlin"
-
 // TODO: use "by extra()" syntax where possible
 extra["distLibDir"] = project.file(distLibDir)
 extra["libsDir"] = project.file(distLibDir)
@@ -102,7 +89,6 @@ extra["ideaPluginDir"] = project.file(ideaPluginDir)
 extra["ideaUltimatePluginDir"] = project.file(ideaUltimatePluginDir)
 extra["cidrPluginDir"] = project.file(cidrPluginDir)
 extra["isSonatypeRelease"] = false
-
 // Work-around necessary to avoid setting null javaHome. Will be removed after support of lazy task configuration
 val jdkNotFoundConst = "JDK NOT FOUND"
 
@@ -112,11 +98,9 @@ extra["JDK_18"] = jdkPath("1.8")
 extra["JDK_9"] = jdkPath("9")
 extra["JDK_10"] = jdkPath("10")
 extra["JDK_11"] = jdkPath("11")
-
 gradle.taskGraph.beforeTask() {
     checkJDK()
 }
-
 var jdkChecked: Boolean = false
 fun checkJDK() {
     if (jdkChecked) {
@@ -190,10 +174,10 @@ extra["compilerModules"] = arrayOf(
         ":compiler:psi",
         *if (project.findProperty("fir.enabled") == "true") {
             arrayOf(
-                ":compiler:fir:cones",
-                ":compiler:fir:resolve",
-                ":compiler:fir:tree",
-                ":compiler:fir:psi2fir"
+                    ":compiler:fir:cones",
+                    ":compiler:fir:resolve",
+                    ":compiler:fir:tree",
+                    ":compiler:fir:psi2fir"
             )
         } else {
             emptyArray()
@@ -282,18 +266,13 @@ fun Task.listConfigurationContents(configName: String) {
 }
 
 val defaultJvmTarget = "1.8"
-val defaultJavaHome = jdkPath(defaultJvmTarget)
+val defaultJavaHome = jdkPath(defaultJvmTarget!!)
 val ignoreTestFailures by extra(project.findProperty("ignoreTestFailures")?.toString()?.toBoolean() ?: project.hasProperty("teamcity"))
 
 allprojects {
 
     jvmTarget = defaultJvmTarget
-    if (defaultJavaHome != null) {
-        javaHome = defaultJavaHome
-    } else {
-        logger.error("Could not find default java home. Please set environment variable JDK_${defaultJavaHome} to point to JDK ${defaultJavaHome} installation.")
-    }
-
+    javaHome = defaultJavaHome
 
     // There are problems with common build dir:
     //  - some tests (in particular js and binary-compatibility-validator depend on the fixed (default) location
@@ -303,7 +282,7 @@ allprojects {
 
     val mirrorRepo: String? = findProperty("maven.repository.mirror")?.toString()
 
-    repositories.withRedirector(project) {
+    repositories {
         intellijSdkRepo(project)
         androidDxJarRepo(project)
         mirrorRepo?.let(::maven)
@@ -314,9 +293,9 @@ allprojects {
     configureJvmProject(javaHome!!, jvmTarget!!)
 
     val commonCompilerArgs = listOfNotNull(
-        "-Xallow-kotlin-package",
-        "-Xread-deserialized-contracts",
-        "-Xprogressive".takeIf { hasProperty("test.progressive.mode") } // TODO: change to "-progressive" after bootstrap
+            "-Xallow-kotlin-package",
+            "-Xread-deserialized-contracts",
+            "-Xprogressive".takeIf { hasProperty("test.progressive.mode") } // TODO: change to "-progressive" after bootstrap
     )
 
     tasks.withType<org.jetbrains.kotlin.gradle.dsl.KotlinCompile<*>> {
@@ -356,10 +335,10 @@ allprojects {
     task("listDistJar") { listConfigurationContents("distJar") }
 
     afterEvaluate {
+        logger.info("configuring project $name to compile to the target jvm version $jvmTarget using jdk: $javaHome")
         if (javaHome != defaultJavaHome || jvmTarget != defaultJvmTarget) {
-            logger.info("configuring project $name to compile to the target jvm version $jvmTarget using jdk: $javaHome")
             configureJvmProject(javaHome!!, jvmTarget!!)
-        } // else we will actually fail during the first task execution. We could not fail before configuration is done due to impact on import in IDE
+        }
 
         fun File.toProjectRootRelativePathOrSelf() = (relativeToOrNull(rootDir)?.takeUnless { it.startsWith("..") } ?: this).path
 
@@ -395,7 +374,7 @@ gradle.taskGraph.whenReady {
         logger.warn("Local build profile is active (IC is on, proguard is off). Use -Pteamcity=true to reproduce TC build")
         for (task in allTasks) {
             when (task) {
-                // todo: remove when Gradle 4.10+ is used (Java IC on by default)
+            // todo: remove when Gradle 4.10+ is used (Java IC on by default)
                 is JavaCompile -> task.options.isIncremental = true
                 is org.gradle.jvm.tasks.Jar -> task.entryCompression = ZipEntryCompression.STORED
             }
@@ -465,8 +444,7 @@ tasks {
         dependsOn("dist")
         dependsOn(":compiler:test",
                   ":compiler:container:test",
-                  ":compiler:tests-java8:test",
-                  ":compiler:tests-spec:remoteRunTests")
+                  ":compiler:tests-java8:test")
     }
 
     create("jsCompilerTest") {
@@ -688,12 +666,14 @@ configure<IdeaModel> {
     }
 }
 
-fun jdkPath(version: String): String {
+fun jdkPathIfFound(version: String): String? {
     val jdkName = "JDK_${version.replace(".", "")}"
     val jdkMajorVersion = JdkMajorVersion.valueOf(jdkName)
-    return configuredJdks.find { it.majorVersion == jdkMajorVersion }?.homeDir?.canonicalPath?:jdkNotFoundConst
+    return configuredJdks.find { it.majorVersion == jdkMajorVersion }?.homeDir?.canonicalPath
 }
 
+fun jdkPath(version: String): String = jdkPathIfFound(version)
+        ?: throw GradleException ("Please set environment variable JDK_${version.replace(".", "")} to point to JDK $version installation")
 
 fun Project.configureJvmProject(javaHome: String, javaVersion: String) {
     tasks.withType<JavaCompile> {
