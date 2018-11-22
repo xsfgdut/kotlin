@@ -105,7 +105,7 @@ dependencies {
     testCompileOnly(intellijPluginDep("Groovy"))
     testCompileOnly(intellijPluginDep("maven"))
 
-    testRuntime(intellijPluginDep("junit"))
+    testCompile(intellijPluginDep("junit"))
     testRuntime(intellijPluginDep("gradle"))
     testRuntime(intellijPluginDep("Groovy"))
     testRuntime(intellijPluginDep("coverage"))

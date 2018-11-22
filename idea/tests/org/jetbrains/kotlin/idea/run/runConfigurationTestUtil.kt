@@ -28,6 +28,8 @@ import com.intellij.execution.configurations.RunProfile
 import com.intellij.execution.executors.DefaultRunExecutor
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.execution.runners.ExecutionEnvironmentBuilder
+import com.intellij.openapi.actionSystem.LangDataKeys
+import com.intellij.openapi.module.Module
 import com.intellij.psi.PsiElement
 import com.intellij.testFramework.MapDataContext
 import org.junit.Assert
@@ -44,7 +46,9 @@ fun getJavaRunParameters(configuration: RunConfiguration): JavaParameters {
 
 fun createConfigurationFromElement(element: PsiElement, save: Boolean = false): RunConfiguration {
     val dataContext = MapDataContext()
-    dataContext.put(Location.DATA_KEY, PsiLocation(element.project, element))
+    val location = PsiLocation(element.project, element)
+    dataContext.put(Location.DATA_KEY, location)
+    dataContext.put(LangDataKeys.MODULE, location.module)
 
     val runnerAndConfigurationSettings = ConfigurationContext.getFromContext(dataContext).configuration
     if (save) {

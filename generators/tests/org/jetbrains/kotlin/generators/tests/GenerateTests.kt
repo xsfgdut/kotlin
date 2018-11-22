@@ -128,6 +128,7 @@ import org.jetbrains.kotlin.idea.refactoring.safeDelete.AbstractMultiModuleSafeD
 import org.jetbrains.kotlin.idea.refactoring.safeDelete.AbstractSafeDeleteTest
 import org.jetbrains.kotlin.idea.repl.AbstractIdeReplCompletionTest
 import org.jetbrains.kotlin.idea.resolve.*
+import org.jetbrains.kotlin.idea.run.AbstractContextRunConfigurationTest
 import org.jetbrains.kotlin.idea.scratch.AbstractScratchRunActionTest
 import org.jetbrains.kotlin.idea.script.AbstractScriptConfigurationCompletionTest
 import org.jetbrains.kotlin.idea.script.AbstractScriptConfigurationHighlightingTest
@@ -795,6 +796,10 @@ fun main(args: Array<String>) {
             model("scratch", extension = "kts", testMethod = "doCompilingTest", testClassName = "Compiling", recursive = false)
             model("scratch", extension = "kts", testMethod = "doReplTest", testClassName = "Repl", recursive = false)
             model("scratch/multiFile", extension = null, testMethod = "doMultiFileTest", recursive = false)
+        }
+
+        testClass<AbstractContextRunConfigurationTest> {
+            model("run/tests", extension = null, recursive = false)
         }
     }
 

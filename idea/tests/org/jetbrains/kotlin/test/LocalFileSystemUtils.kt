@@ -14,21 +14,19 @@
  * limitations under the License.
  */
 
-package org.jetbrains.kotlin.test;
+package org.jetbrains.kotlin.test
 
-import com.intellij.openapi.vfs.LocalFileSystem;
-import com.intellij.openapi.vfs.VirtualFile;
-import org.jetbrains.annotations.NotNull;
+import com.intellij.openapi.vfs.LocalFileSystem
+import com.intellij.openapi.vfs.VirtualFile
+import org.jetbrains.kotlin.utils.sure
 
-public class LocalFileSystemUtils {
-    private LocalFileSystemUtils() {
-    }
-
-    public static void refreshPath(@NotNull String path) {
-        VirtualFile virtualFile = LocalFileSystem.getInstance().refreshAndFindFileByPath(path);
+object LocalFileSystemUtils {
+    fun refreshAndGetFile(path: String): VirtualFile {
+        val virtualFile = LocalFileSystem.getInstance().refreshAndFindFileByPath(path)
         if (virtualFile != null) {
-            virtualFile.getChildren();
-            virtualFile.refresh(false, true);
+            virtualFile.children
+            virtualFile.refresh(false, true)
         }
+        return virtualFile.sure { "File not found: \"$path\"" }
     }
 }
