@@ -1,10 +1,11 @@
-
 plugins {
     kotlin("jvm")
     id("jps-compatible")
 }
 
 dependencies {
+    //TODO throw RuntimeException("ENSURE_INVOKED_dfsdf")
+
     compile(project(":core:util.runtime"))
     compile(project(":compiler:frontend"))
     compile(project(":compiler:frontend.java"))

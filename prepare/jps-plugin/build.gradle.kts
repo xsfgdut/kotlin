@@ -22,6 +22,8 @@ val projectsToShadow = listOf(
         ":plugins:android-extensions-jps")
 
 dependencies {
+    //TODO throw RuntimeException("ENSURE_INVOKED_kfjr")
+
     projectsToShadow.forEach {
         embeddedComponents(project(it)) { isTransitive = false }
     }

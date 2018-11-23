@@ -1,4 +1,3 @@
-
 description = "Kotlin scripting support utilities"
 
 plugins {
@@ -7,6 +6,8 @@ plugins {
 }
 
 dependencies {
+    //TODO throw RuntimeException("ENSURE_INVOKED_fdc")
+
     compile(project(":kotlin-stdlib"))
     compile(project(":kotlin-script-runtime"))
     compile(project(":kotlin-scripting-jvm"))

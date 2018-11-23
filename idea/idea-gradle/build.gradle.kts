@@ -4,6 +4,7 @@ plugins {
 }
 
 dependencies {
+    //TODO throw RuntimeException("ENSURE_INVOKED_!!!")
     testRuntime(intellijDep())
 
     compileOnly(project(":idea"))

@@ -95,6 +95,7 @@ dependencies {
         }
     }
     fatJarContentsStripServices(intellijDep("jps-standalone")) { includeJars("jps-model") }
+    //TODO throw RuntimeException("ENSURE_INVOKED_%$##$%")
 }
 
 noDefaultJar()

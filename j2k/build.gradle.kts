@@ -1,10 +1,11 @@
-
 plugins {
     kotlin("jvm")
     id("jps-compatible")
 }
 
 dependencies {
+    //TODO throw RuntimeException("ENSURE_INVOKED_003")
+
     testRuntime(intellijDep())
 
     compile(project(":kotlin-stdlib"))

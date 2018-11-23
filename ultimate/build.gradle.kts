@@ -1,4 +1,3 @@
-
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.gradle.jvm.tasks.Jar
 
@@ -17,6 +16,7 @@ val intellijUltimateEnabled : Boolean by rootProject.extra
 val springClasspath by configurations.creating
 
 dependencies {
+    throw RuntimeException("ENSURE_INVOKED_fdfg")
     if (intellijUltimateEnabled) {
         testRuntime(intellijUltimateDep())
     }

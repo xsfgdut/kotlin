@@ -1,4 +1,3 @@
-
 description = "Kotlin Gradle Tooling support"
 
 plugins {
@@ -9,6 +8,7 @@ plugins {
 jvmTarget = "1.6"
 
 dependencies {
+    //TODO throw RuntimeException("ENSURE_INVOKED_001")
     compile(project(":kotlin-stdlib"))
     compile(project(":compiler:cli-common"))
     compile(intellijPluginDep("gradle"))

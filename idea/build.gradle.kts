@@ -104,13 +104,16 @@ dependencies {
     testCompileOnly(commonDep("com.google.code.findbugs", "jsr305"))
     testCompileOnly(intellijPluginDep("gradle"))
     testCompileOnly(intellijPluginDep("Groovy"))
-    testCompileOnly(intellijPluginDep("maven"))
+
+    if (Ide.IJ()) {
+        testCompileOnly(intellijPluginDep("maven"))
+        testRuntime(intellijPluginDep("maven"))
+    }
 
     testRuntime(intellijPluginDep("junit"))
     testRuntime(intellijPluginDep("gradle"))
     testRuntime(intellijPluginDep("Groovy"))
     testRuntime(intellijPluginDep("coverage"))
-    testRuntime(intellijPluginDep("maven"))
     testRuntime(intellijPluginDep("android"))
     testRuntime(intellijPluginDep("smali"))
     testRuntime(intellijPluginDep("testng"))
@@ -145,7 +148,8 @@ val performanceTestRuntime by configurations.creating {
 }
 
 val performanceTest by run {
-    sourceSets.creating {
+    // The javaPluginConvention().sourceSets code seems to be obsolete
+    (if (Ide.AS32.orLower()) javaPluginConvention().sourceSets else sourceSets).creating {
         compileClasspath += sourceSets["test"].output
         compileClasspath += sourceSets["main"].output
         runtimeClasspath += sourceSets["test"].output

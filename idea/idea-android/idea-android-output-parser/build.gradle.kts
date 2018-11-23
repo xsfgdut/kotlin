@@ -1,4 +1,3 @@
-
 plugins {
     kotlin("jvm")
 }
@@ -6,6 +5,8 @@ plugins {
 apply { plugin("jps-compatible") }
 
 dependencies {
+    //TODO throw RuntimeException("ENSURE_INVOKED_fjsklf;slkj;lkj")
+
     compile(project(":compiler:util"))
     compileOnly(intellijCoreDep()) { includeJars("intellij-core") }
     compileOnly(intellijDep())

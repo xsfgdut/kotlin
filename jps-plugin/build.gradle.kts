@@ -6,6 +6,7 @@ plugins {
 val compilerModules: Array<String> by rootProject.extra
 
 dependencies {
+    //TODO throw RuntimeException("ENSURE_INVOKED_0wewerwe04")
     compile(project(":kotlin-build-common"))
     compile(project(":core:descriptors"))
     compile(project(":core:descriptors.jvm"))
@@ -41,6 +42,7 @@ dependencies {
 }
 
 sourceSets {
+    //TODO throw RuntimeException("ENSURE_INVOKED_222004")
     "main" { projectDefault() }
     "test" {
         java.srcDirs("jps-tests/test")
