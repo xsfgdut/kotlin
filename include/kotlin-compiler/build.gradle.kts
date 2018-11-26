@@ -11,12 +11,9 @@ val compilerModules: Array<String> by rootProject.extra
 val compilerManifestClassPath = "kotlin-stdlib.jar kotlin-reflect.jar kotlin-script-runtime.jar"
 
 dependencies {
-    //TODO throw RuntimeException("ENSURE_INVOKED_?")
-
     compilerModules.forEach { module ->
         compile(project(module)) { isTransitive = false }
     }
-    //TODO throw RuntimeException("ENSURE_INVOKED_!!!")
     fatJarContents(project(":core:builtins", configuration = "builtins"))
     fatJarContents(commonDep("javax.inject"))
     fatJarContents(commonDep("org.jline", "jline"))

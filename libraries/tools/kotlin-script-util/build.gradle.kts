@@ -1,3 +1,4 @@
+
 description = "Kotlin scripting support utilities"
 
 plugins {
@@ -6,8 +7,6 @@ plugins {
 }
 
 dependencies {
-    //TODO throw RuntimeException("ENSURE_INVOKED_fdc")
-
     compile(project(":kotlin-stdlib"))
     compile(project(":kotlin-script-runtime"))
     compile(project(":kotlin-scripting-jvm"))
@@ -26,7 +25,12 @@ dependencies {
     testRuntime("org.sonatype.aether:aether-api:1.13.1")
     testRuntime("org.apache.maven:maven-core:3.0.3")
     compileOnly(intellijDep()) { includeJars("openapi", "util") }
-    testCompile(intellijDep()) { includeJars("openapi", "platform-api", "util") }
+
+    if (Ide.IJ173()) {
+        testCompile(intellijDep()) { includeJars("openapi", "util") }
+    } else {
+        testCompile(intellijDep()) { includeJars("openapi", "platform-api", "util") }
+    }
 }
 
 projectTest {
