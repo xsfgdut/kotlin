@@ -16,7 +16,6 @@ val intellijUltimateEnabled : Boolean by rootProject.extra
 val springClasspath by configurations.creating
 
 dependencies {
-    throw RuntimeException("ENSURE_INVOKED_fdfg")
     if (intellijUltimateEnabled) {
         testRuntime(intellijUltimateDep())
     }
