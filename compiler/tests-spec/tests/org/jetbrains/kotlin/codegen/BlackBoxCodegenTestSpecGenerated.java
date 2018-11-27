@@ -634,4 +634,111 @@ public class BlackBoxCodegenTestSpecGenerated extends AbstractBlackBoxCodegenTes
             }
         }
     }
+
+    @TestMetadata("compiler/tests-spec/testData/codegen/box/notLinked")
+    @TestDataPath("$PROJECT_ROOT")
+    @RunWith(JUnit3RunnerWithInners.class)
+    public static class NotLinked extends AbstractBlackBoxCodegenTestSpec {
+        private void runTest(String testDataFilePath) throws Exception {
+            KotlinTestUtils.runTest(this::doTest, TargetBackend.ANY, testDataFilePath);
+        }
+
+        public void testAllFilesPresentInNotLinked() throws Exception {
+            KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/tests-spec/testData/codegen/box/notLinked"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.ANY, true);
+        }
+
+        @TestMetadata("compiler/tests-spec/testData/codegen/box/notLinked/annotations")
+        @TestDataPath("$PROJECT_ROOT")
+        @RunWith(JUnit3RunnerWithInners.class)
+        public static class Annotations extends AbstractBlackBoxCodegenTestSpec {
+            private void runTest(String testDataFilePath) throws Exception {
+                KotlinTestUtils.runTest(this::doTest, TargetBackend.ANY, testDataFilePath);
+            }
+
+            public void testAllFilesPresentInAnnotations() throws Exception {
+                KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/tests-spec/testData/codegen/box/notLinked/annotations"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.ANY, true);
+            }
+
+            @TestMetadata("compiler/tests-spec/testData/codegen/box/notLinked/annotations/type")
+            @TestDataPath("$PROJECT_ROOT")
+            @RunWith(JUnit3RunnerWithInners.class)
+            public static class Type extends AbstractBlackBoxCodegenTestSpec {
+                private void runTest(String testDataFilePath) throws Exception {
+                    KotlinTestUtils.runTest(this::doTest, TargetBackend.ANY, testDataFilePath);
+                }
+
+                public void testAllFilesPresentInType() throws Exception {
+                    KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/tests-spec/testData/codegen/box/notLinked/annotations/type"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.ANY, true);
+                }
+
+                @TestMetadata("compiler/tests-spec/testData/codegen/box/notLinked/annotations/type/pos")
+                @TestDataPath("$PROJECT_ROOT")
+                @RunWith(JUnit3RunnerWithInners.class)
+                public static class Pos extends AbstractBlackBoxCodegenTestSpec {
+                    private void runTest(String testDataFilePath) throws Exception {
+                        KotlinTestUtils.runTest(this::doTest, TargetBackend.ANY, testDataFilePath);
+                    }
+
+                    @TestMetadata("1.kt")
+                    public void test1() throws Exception {
+                        runTest("compiler/tests-spec/testData/codegen/box/notLinked/annotations/type/pos/1.kt");
+                    }
+
+                    @TestMetadata("10.kt")
+                    public void test10() throws Exception {
+                        runTest("compiler/tests-spec/testData/codegen/box/notLinked/annotations/type/pos/10.kt");
+                    }
+
+                    @TestMetadata("11.kt")
+                    public void test11() throws Exception {
+                        runTest("compiler/tests-spec/testData/codegen/box/notLinked/annotations/type/pos/11.kt");
+                    }
+
+                    @TestMetadata("2.kt")
+                    public void test2() throws Exception {
+                        runTest("compiler/tests-spec/testData/codegen/box/notLinked/annotations/type/pos/2.kt");
+                    }
+
+                    @TestMetadata("3.kt")
+                    public void test3() throws Exception {
+                        runTest("compiler/tests-spec/testData/codegen/box/notLinked/annotations/type/pos/3.kt");
+                    }
+
+                    @TestMetadata("4.kt")
+                    public void test4() throws Exception {
+                        runTest("compiler/tests-spec/testData/codegen/box/notLinked/annotations/type/pos/4.kt");
+                    }
+
+                    @TestMetadata("5.kt")
+                    public void test5() throws Exception {
+                        runTest("compiler/tests-spec/testData/codegen/box/notLinked/annotations/type/pos/5.kt");
+                    }
+
+                    @TestMetadata("6.kt")
+                    public void test6() throws Exception {
+                        runTest("compiler/tests-spec/testData/codegen/box/notLinked/annotations/type/pos/6.kt");
+                    }
+
+                    @TestMetadata("7.kt")
+                    public void test7() throws Exception {
+                        runTest("compiler/tests-spec/testData/codegen/box/notLinked/annotations/type/pos/7.kt");
+                    }
+
+                    @TestMetadata("8.kt")
+                    public void test8() throws Exception {
+                        runTest("compiler/tests-spec/testData/codegen/box/notLinked/annotations/type/pos/8.kt");
+                    }
+
+                    @TestMetadata("9.kt")
+                    public void test9() throws Exception {
+                        runTest("compiler/tests-spec/testData/codegen/box/notLinked/annotations/type/pos/9.kt");
+                    }
+
+                    public void testAllFilesPresentInPos() throws Exception {
+                        KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/tests-spec/testData/codegen/box/notLinked/annotations/type/pos"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.ANY, true);
+                    }
+                }
+            }
+        }
+    }
 }
