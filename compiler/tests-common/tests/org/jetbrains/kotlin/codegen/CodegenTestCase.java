@@ -18,6 +18,8 @@ import kotlin.script.experimental.dependencies.ScriptDependencies;
 import kotlin.text.Charsets;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.kotlin.TestsCompiletimeError;
+import org.jetbrains.kotlin.TestsCompilerError;
 import org.jetbrains.kotlin.backend.common.output.OutputFile;
 import org.jetbrains.kotlin.backend.common.output.SimpleOutputFileCollection;
 import org.jetbrains.kotlin.checkers.CheckerTestUtil;
@@ -512,7 +514,7 @@ public abstract class CodegenTestCase extends KtUsefulTestCase {
                     DxChecker.check(classFileFactory);
                 }
             }
-            catch (Throwable e) {
+            catch (TestsCompiletimeError e) {
                 e.printStackTrace();
                 System.err.println("Generating instructions as text...");
                 try {
@@ -529,6 +531,8 @@ public abstract class CodegenTestCase extends KtUsefulTestCase {
                     System.err.println("-----------------------------------------------------------------------------");
                 }
                 fail("See exceptions above");
+            } catch (Throwable e) {
+                throw new TestsCompilerError(e);
             }
         }
         return classFileFactory;
