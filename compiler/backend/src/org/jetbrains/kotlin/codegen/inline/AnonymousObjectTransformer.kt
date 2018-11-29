@@ -426,7 +426,8 @@ class AnonymousObjectTransformer(
     }
 
     private fun getMethodParametersWithCaptured(capturedBuilder: ParametersBuilder, sourceNode: MethodNode): Parameters {
-        val builder = ParametersBuilder.initializeBuilderFrom(oldObjectType, sourceNode.desc)
+        val builder =
+            ParametersBuilder.initializeBuilderFrom(oldObjectType, sourceNode.desc, isDefault = sourceNode.name.endsWith("\$default"))
         for (param in capturedBuilder.listCaptured()) {
             builder.addCapturedParamCopy(param)
         }
