@@ -16,6 +16,7 @@
 
 package org.jetbrains.kotlin.idea.configuration
 
+import com.intellij.internal.statistic.service.fus.collectors.FUSApplicationUsageTrigger
 import com.intellij.openapi.externalSystem.model.DataNode
 import com.intellij.openapi.externalSystem.model.ProjectKeys
 import com.intellij.openapi.externalSystem.model.project.ModuleData
@@ -34,6 +35,7 @@ import org.jetbrains.kotlin.gradle.KotlinMPPGradleModel
 import org.jetbrains.kotlin.idea.inspections.gradle.getDependencyModules
 import org.jetbrains.kotlin.idea.util.CopyableDataNodeUserDataProperty
 import org.jetbrains.kotlin.idea.util.NotNullableCopyableDataNodeUserDataProperty
+import org.jetbrains.kotlin.statistics.KotlinTargetTrigger
 import org.jetbrains.plugins.gradle.model.ExternalProjectDependency
 import org.jetbrains.plugins.gradle.model.FileCollectionDependency
 import org.jetbrains.plugins.gradle.model.data.GradleSourceSetData
@@ -75,11 +77,21 @@ class KotlinGradleProjectResolverExtension : AbstractProjectResolverExtension() 
     }
 
     override fun populateModuleDependencies(
-        gradleModule: IdeaModule,
-        ideModule: DataNode<ModuleData>,
-        ideProject: DataNode<ProjectData>
+            gradleModule: IdeaModule,
+            ideModule: DataNode<ModuleData>,
+            ideProject: DataNode<ProjectData>
     ) {
-        if (resolverCtx.getExtraProject(gradleModule, KotlinMPPGradleModel::class.java) != null) {
+        val mppGradleModel = resolverCtx.getExtraProject(gradleModule, KotlinMPPGradleModel::class.java)
+        println("mppGradleModel : $mppGradleModel")
+        if (mppGradleModel != null) {
+            mppGradleModel.targets.forEach { target ->
+                FUSApplicationUsageTrigger.getInstance().trigger(
+                        KotlinTargetTrigger::class.java,
+                        target.name
+                ).also {
+                    println("target.name: ${target.name}")
+                }
+            }
             return super.populateModuleDependencies(gradleModule, ideModule, ideProject)
         }
 
@@ -92,12 +104,12 @@ class KotlinGradleProjectResolverExtension : AbstractProjectResolverExtension() 
         val gradleIdeaProject = gradleModule.project
 
         fun getDependencyByFiles(files: Collection<File>) = files
-            .mapTo(HashSet()) {
-                val path = FileUtil.toSystemIndependentName(it.path)
-                val targetSourceSetId = outputToSourceSet?.get(path)?.first ?: return@mapTo null
-                sourceSetByName?.get(targetSourceSetId)?.first
-            }
-            .singleOrNull()
+                .mapTo(HashSet()) {
+                    val path = FileUtil.toSystemIndependentName(it.path)
+                    val targetSourceSetId = outputToSourceSet?.get(path)?.first ?: return@mapTo null
+                    sourceSetByName?.get(targetSourceSetId)?.first
+                }
+                .singleOrNull()
 
         fun DataNode<out ModuleData>.getDependencies(): Collection<DataNode<out ModuleData>> {
             if (useModulePerSourceSet()) {
@@ -111,7 +123,7 @@ class KotlinGradleProjectResolverExtension : AbstractProjectResolverExtension() 
                                     (it.data as? ModuleData)?.id == dependency.projectPath
                                 } as DataNode<ModuleData>? ?: return@mapNotNullTo null
                                 ExternalSystemApiUtil.findAll(targetModuleNode, GradleSourceSetData.KEY)
-                                    .firstOrNull { it.sourceSetName == "main" }
+                                        .firstOrNull { it.sourceSetName == "main" }
                             } else {
                                 getDependencyByFiles(dependency.projectDependencyArtifacts)
                             }
@@ -155,8 +167,8 @@ class KotlinGradleProjectResolverExtension : AbstractProjectResolverExtension() 
 
                         if (useModulePerSourceSet()) {
                             val targetSourceSetsByName = ExternalSystemApiUtil
-                                .findAll(targetModule, GradleSourceSetData.KEY)
-                                .associateBy { it.sourceSetName }
+                                    .findAll(targetModule, GradleSourceSetData.KEY)
+                                    .associateBy { it.sourceSetName }
                             val targetMainSourceSet = targetSourceSetsByName["main"] ?: targetModule
                             val targetSourceSet = targetSourceSetsByName[currentModuleNode.sourceSetName]
                             if (targetSourceSet != null) {
@@ -186,6 +198,17 @@ class KotlinGradleProjectResolverExtension : AbstractProjectResolverExtension() 
         ideModule.compilerArgumentsBySourceSet = gradleModel.compilerArgumentsBySourceSet
         ideModule.coroutines = gradleModel.coroutines
         ideModule.platformPluginId = gradleModel.platformPluginId
+
+        println("ideModule.platformPluginId : ${ideModule.platformPluginId}")
+        ideModule.platformPluginId?.let { platformPluginId ->
+            FUSApplicationUsageTrigger.getInstance().trigger(
+                    KotlinTargetTrigger::class.java,
+                    platformPluginId
+            ).also {
+                println("platformPluginId: $platformPluginId")
+            }
+        }
+
         addImplementedModuleNames(gradleModule, ideModule, ideProject, gradleModel)
 
         if (useModulePerSourceSet()) {
@@ -194,10 +217,10 @@ class KotlinGradleProjectResolverExtension : AbstractProjectResolverExtension() 
     }
 
     private fun addImplementedModuleNames(
-        gradleModule: IdeaModule,
-        dependentModule: DataNode<ModuleData>,
-        ideProject: DataNode<ProjectData>,
-        gradleModel: KotlinGradleModel
+            gradleModule: IdeaModule,
+            dependentModule: DataNode<ModuleData>,
+            ideProject: DataNode<ProjectData>,
+            gradleModel: KotlinGradleModel
     ) {
         val implementedModules = gradleModel.implements.mapNotNull { findModuleById(ideProject, gradleModule, it) }
         if (useModulePerSourceSet()) {
@@ -212,7 +235,7 @@ class KotlinGradleProjectResolverExtension : AbstractProjectResolverExtension() 
     }
 
     private fun DataNode<ModuleData>.getSourceSetsMap() =
-        ExternalSystemApiUtil.getChildren(this, GradleSourceSetData.KEY).associateBy { it.sourceSetName }
+            ExternalSystemApiUtil.getChildren(this, GradleSourceSetData.KEY).associateBy { it.sourceSetName }
 
     private val DataNode<out ModuleData>.sourceSetName
         get() = (data as? GradleSourceSetData)?.id?.substringAfterLast(':')
@@ -228,8 +251,8 @@ class KotlinGradleProjectResolverExtension : AbstractProjectResolverExtension() 
     private fun findModuleById(ideProject: DataNode<ProjectData>, gradleModule: IdeaModule, moduleId: String): DataNode<ModuleData>? {
         val isCompositeProject = resolverCtx.models.ideaProject != gradleModule.project
         val compositePrefix =
-            if (isCompositeProject && moduleId.startsWith(":")) gradleModule.project.name
-            else ""
+                if (isCompositeProject && moduleId.startsWith(":")) gradleModule.project.name
+                else ""
 
         val fullModuleId = compositePrefix + moduleId
 
