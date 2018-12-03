@@ -133,27 +133,14 @@ val stripMetadata by tasks.creating {
     }
 }
 
-val proguardOutput = "$libsDir/${property("archivesBaseName")}-proguard.jar"
+val proguardOutputFileName = "${property("archivesBaseName")}-proguard.jar"
+val proguardOutput = "$libsDir/${proguardOutputFileName}"
 
 val proguard by task<Copy> {
     dependsOn(stripMetadata)
     from(File("$libsDir/kotlin-reflect-stripped.jar"))
     into(libsDir!!)
     rename("kotlin-reflect-stripped.jar", proguardOutputFileName)
-}
-
-val proguard by task<ProGuardTask> {
-    dependsOn(stripMetadata)
-    inputs.files(stripMetadata.outputs.files)
-    outputs.file(proguardOutput)
-
-    injars(mapOf("filter" to "!META-INF/versions/**"), stripMetadata.outputs.files)
-    injars(mapOf("filter" to "!META-INF/**"), proguardAdditionalInJars)
-    outjars(proguardOutput)
-
-    libraryjars(mapOf("filter" to "!META-INF/versions/**"), proguardDeps)
-
-    configuration("$core/reflection.jvm/reflection.pro")
 }
 
 val relocateCoreSources by task<Copy> {
