@@ -25,6 +25,7 @@ workspace.xml
 build/
 !**/src/**/build
 !**/test/**/build
+!libraries/tools/idl2k/build/generated-src/**
 *.iml
 !**/testData/**/*.iml
 .idea/libraries/Gradle*.xml
