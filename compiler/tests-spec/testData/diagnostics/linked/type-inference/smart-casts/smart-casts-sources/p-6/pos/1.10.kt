@@ -150,10 +150,10 @@ fun case_13() {
     val x = case_13_1(mutableListOf(1), listOf(1))
 
     if (x != null) {
-        <!DEBUG_INFO_EXPRESSION_TYPE("kotlin.collections.List<{Int? & Byte? & Short? & Long?}?> & kotlin.collections.List<{Int? & Byte? & Short? & Long?}?>?")!>x<!>
+        <!DEBUG_INFO_EXPRESSION_TYPE("kotlin.collections.List<kotlin.Int?> & kotlin.collections.List<kotlin.Int?>?")!>x<!>
         val y = <!DEBUG_INFO_SMARTCAST!>x<!>[0]
         if (y != null) {
-            <!DEBUG_INFO_EXPRESSION_TYPE("{Int? & Byte? & Short? & Long?} & {Int? & Byte? & Short? & Long?}?")!>y<!>
+            <!DEBUG_INFO_EXPRESSION_TYPE("kotlin.Int & kotlin.Int?")!>y<!>
         }
     }
 }
@@ -195,10 +195,10 @@ fun case_16() {
     val x = case_16_1(mutableListOf(1), listOf(1))
 
     if (x != null) {
-        <!DEBUG_INFO_EXPRESSION_TYPE("kotlin.collections.List<{Int? & Byte? & Short? & Long?}?> & kotlin.collections.List<{Int? & Byte? & Short? & Long?}?>?")!>x<!>
+        <!DEBUG_INFO_EXPRESSION_TYPE("kotlin.collections.List<kotlin.Int?> & kotlin.collections.List<kotlin.Int?>?")!>x<!>
         val y = <!DEBUG_INFO_SMARTCAST!>x<!>[0]
         if (y != null) {
-            <!DEBUG_INFO_EXPRESSION_TYPE("{Int? & Byte? & Short? & Long?} & {Int? & Byte? & Short? & Long?}?")!>y<!>
+            <!DEBUG_INFO_EXPRESSION_TYPE("kotlin.Int & kotlin.Int?")!>y<!>
         }
     }
 }
@@ -224,9 +224,9 @@ fun <T>case_18_1(x: MutableList<T?>, y: List<T>) = if (true) x else y
 fun case_18() {
     val x = case_18_1(mutableListOf(1), listOf(1))
 
-    <!DEBUG_INFO_EXPRESSION_TYPE("kotlin.collections.List<{Int? & Byte? & Short? & Long?}?>")!>x<!>
+    <!DEBUG_INFO_EXPRESSION_TYPE("kotlin.collections.List<kotlin.Int?>")!>x<!>
     val y = x[0]
     if (y != null) {
-        <!DEBUG_INFO_EXPRESSION_TYPE("{Int? & Byte? & Short? & Long?} & {Int? & Byte? & Short? & Long?}?")!>y<!>
+        <!DEBUG_INFO_EXPRESSION_TYPE("kotlin.Int & kotlin.Int?")!>y<!>
     }
 }

@@ -71,13 +71,10 @@ class TestExceptionsComparator(wholeFile: File) {
 
     private fun getExceptionsFile(e: TestsError) = File("$filePathPrefix.${e.postfix.text}.txt")
 
-    private fun reduceStackTrace(stackTrace: String): Pair<String, String> {
-        val md = MessageDigest.getInstance("MD5")
-        val digest = md.digest(stackTrace.toByteArray())
-        val hash = "0x${DatatypeConverter.printHexBinary(digest)}"
-        val reducedStackTrace = stackTrace.lines().subList(0, 10).joinToString(System.lineSeparator())
-
-        return Pair(hash, reducedStackTrace)
+    private fun getExceptionInfo(e: TestsError) = when (e) {
+        is TestsRuntimeError -> (e.original.cause ?: e.original).let { it.toString() + it.stackTrace?.get(0)?.let { "\n$it" } }
+        is TestsCompilerError -> (e.original.cause ?: e.original).toString()
+        is TestsCompiletimeError -> throw e.original
     }
 
     private fun validateExistingExceptionFiles(e: TestsError?) {
@@ -97,37 +94,37 @@ class TestExceptionsComparator(wholeFile: File) {
         val exceptionsBuffer = ByteArrayOutputStream()
         val stream = PrintStream(exceptionsBuffer)
 
-        System.setErr(stream)
-
         try {
             runnable()
         } catch (e: TestsError) {
             val exceptionInfo = analyze(e.original)
 
-            if (e !is TestsCompilerError || checkUnexpectedBehaviour?.invoke(exceptionInfo) != false) {
-                val exceptionsFile = getExceptionsFile(e)
-
-                e.original.printStackTrace(stream)
-                val (stackTraceHash, stackTrace) = reduceStackTrace(exceptionsBuffer.toString())
-
-                try {
-                    KotlinTestUtils.assertEqualsToFile(exceptionsFile, "STACK TRACE HASH: $stackTraceHash$ls$ls$stackTrace$ls...")
-                } catch (e: FileComparisonFailure) {
-                    if (!muteOnCompilerExceptions)
-                        throw e
-                }
-
-                print(exceptionsBuffer.toString())
-                e.original.printStackTrace()
-
-                System.setErr(System.err)
-
-                validateExistingExceptionFiles(e)
-
-                return
-            } else {
+            if (e is TestsCompilerError && checkUnexpectedBehaviour?.invoke(exceptionInfo) == false)
                 throw e.original
+
+            val exceptionsFile = getExceptionsFile(e)
+
+            e.original.printStackTrace(stream)
+
+            try {
+                KotlinTestUtils.assertEqualsToFile(exceptionsFile, getExceptionInfo(e))
+            } catch (t: FileComparisonFailure) {
+                if (!muteOnCompilerExceptions) {
+                    e.original.printStackTrace()
+                    throw t
+                }
+            } catch (t: AssertionError) {
+                e.original.printStackTrace()
+                throw t
             }
+
+            e.original.printStackTrace()
+
+            System.setErr(System.err)
+
+            validateExistingExceptionFiles(e)
+
+            return
         }
 
         validateExistingExceptionFiles(null)
