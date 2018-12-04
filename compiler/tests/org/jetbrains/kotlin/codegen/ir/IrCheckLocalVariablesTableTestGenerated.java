@@ -49,6 +49,11 @@ public class IrCheckLocalVariablesTableTestGenerated extends AbstractIrCheckLoca
         runTest("compiler/testData/checkLocalVariablesTable/destructuringInlineLambda.kt");
     }
 
+    @TestMetadata("inlineArgumentSlots.kt")
+    public void testInlineArgumentSlots() throws Exception {
+        runTest("compiler/testData/checkLocalVariablesTable/inlineArgumentSlots.kt");
+    }
+
     @TestMetadata("inlineLambdaWithItParam.kt")
     public void testInlineLambdaWithItParam() throws Exception {
         runTest("compiler/testData/checkLocalVariablesTable/inlineLambdaWithItParam.kt");
